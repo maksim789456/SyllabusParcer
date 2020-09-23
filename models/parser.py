@@ -36,17 +36,17 @@ def make_raw_syllabus(df: DataFrame, practical_setting: int, independent_setting
                 practicals = []
                 for practical_index in practical_indexes:  # Уроки
                     if topic_index.start <= practical_index <= topic_index.stop:  # Если занятие попадает в тему
-                        if practical_setting == 1:
+                        if practical_setting == 0:
                             practical_value: str = df.loc[practical_index, 'content']
                         else:
                             practical_next_line_index = practical_index
                             practical_next_line_index += 1
                             practical_value: str = df.loc[practical_next_line_index, 'content']
-                        independent = ""
                         independent_index = practical_index
                         independent_index += 1
+                        independent = ''
                         if independent_index in independent_indexes:  # Если есть СР после занятия
-                            if independent_setting == 1:
+                            if independent_setting == 0:
                                 independent = df.loc[independent_index, 'content']
                             else:
                                 independent_index += 1
