@@ -64,7 +64,7 @@ def make_final_syllabus(raw_syllabus: List) -> List[TopicHour]:
         for topic in selection.get('topics'):
             for practical in topic.get('practicals'):
                 practical_value = practical.get('practical')
-                # practical_value = re.sub(r'^\d+\.?', practical_value, '')
+                practical_value = re.sub(r'^\d+\.?\ ?', '', practical_value, 1)
                 syllabus.append(TopicHour(selection.get('selection'), topic.get('topic'), practical_value,
                                           practical.get('independent'), practical.get('hours'),
                                           practical.get('hourType')))
