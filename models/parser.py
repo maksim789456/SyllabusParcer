@@ -6,18 +6,19 @@ from .TopicHour import HourType
 from pandas import DataFrame
 
 
-def parse(df: DataFrame, independent_setting: int) -> List[TopicHour]:
+def parse(df: DataFrame, practical_setting: int, independent_setting: int) -> List[TopicHour]:
     df = rename_columns(df)
     df = clear_nan(df)
     df = try_fix_symbols(df)
     df = try_fix_topics(df)
     df = try_fix_independent(df)
 
-    raw_syllabus = make_raw_syllabus(df, independent_setting)
+    raw_syllabus = make_raw_syllabus(df, practical_setting, independent_setting)
     return make_final_syllabus(raw_syllabus)
 
 
-def make_raw_syllabus(df: DataFrame, independent_setting: int) -> List:
+def make_raw_syllabus(df: DataFrame, practical_setting: int, independent_setting: int) -> List:
+    # ЧД: Создание сырого массива на основе индексов
     rows_size = df['topic'].size
     selection_indexes = range_indexes(get_selection_indexes(df), rows_size)
     topic_indexes = range_indexes(get_topic_indexes(df), rows_size)
@@ -35,7 +36,12 @@ def make_raw_syllabus(df: DataFrame, independent_setting: int) -> List:
                 practicals = []
                 for practical_index in practical_indexes:  # Уроки
                     if topic_index.start <= practical_index <= topic_index.stop:  # Если занятие попадает в тему
-                        practical_value: str = df.loc[practical_index, 'content']
+                        if practical_setting == 1:
+                            practical_value: str = df.loc[practical_index, 'content']
+                        else:
+                            practical_next_line_index = practical_index
+                            practical_next_line_index += 1
+                            practical_value: str = df.loc[practical_next_line_index, 'content']
                         independent = ""
                         independent_index = practical_index
                         independent_index += 1
@@ -59,12 +65,14 @@ def make_raw_syllabus(df: DataFrame, independent_setting: int) -> List:
 
 
 def make_final_syllabus(raw_syllabus: List) -> List[TopicHour]:
+    # ЧД: Создание финальный массив с занятиями из групированного сырого массива
     syllabus = []
+    regex = r'^\d+\.?\ ?'
     for selection in raw_syllabus:
         for topic in selection.get('topics'):
             for practical in topic.get('practicals'):
                 practical_value = practical.get('practical')
-                practical_value = re.sub(r'^\d+\.?\ ?', '', practical_value, 1)
+                practical_value = re.sub(regex, '', practical_value, 1)  # замена число-точка на ничего
                 syllabus.append(TopicHour(selection.get('selection'), topic.get('topic'), practical_value,
                                           practical.get('independent'), practical.get('hours'),
                                           practical.get('hourType')))
@@ -142,7 +150,7 @@ def try_fix_independent(df: DataFrame) -> DataFrame:
 
 
 def try_fix_symbols(df: DataFrame) -> DataFrame:
-    # Убираем всякий шлак
+    # Убираем всякий шлак, заменяем непонятные
     df.loc[:, 'topic'] = df['topic'].str.replace('^\d$', '',)
     df.loc[:, 'content'] = df['content'].str.replace('\xa0', '')
     df.loc[:, 'content'] = df['content'].str.replace('\xad', '')
@@ -155,6 +163,7 @@ def try_fix_symbols(df: DataFrame) -> DataFrame:
 
 
 def range_indexes(old_indexes: List[int], df_size: int) -> List[pandas.RangeIndex]:
+    # ЧД: Превращаем список из индексов в RangeIndex.
     indexes = []
     i = 0
     while i <= len(old_indexes) - 1:
@@ -172,6 +181,7 @@ def range_indexes(old_indexes: List[int], df_size: int) -> List[pandas.RangeInde
     return indexes
 
 
+# Методы для получения всех необходимых индексов (для раздела, темы, занятия и самостоятельной)
 def get_selection_indexes(df: DataFrame):
     selection_index = df[df['topic'].str.contains('(?:Р|р)аздел')].index.values
     return selection_index
