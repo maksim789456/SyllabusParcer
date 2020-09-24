@@ -105,8 +105,12 @@ def clear_nan(df: DataFrame) -> DataFrame:
     if df.columns.size == 4:
         df.loc[:, 'content'] = df['content'].fillna("")
         df.loc[:, 'content2'] = df['content2'].fillna("")
+        df = df.astype({"topic": str, "content": str, "content2": str, "hours": int})
+        df = df.replace(r'^\s+$', pandas.np.nan, regex=True)
     else:
         df.loc[:, 'content'] = df['content'].fillna("")
+        df = df.astype({"topic": str, "content": str, "hours": int})
+        df = df.replace(r'^\s+$', pandas.np.nan, regex=True)
     return df
 
 
