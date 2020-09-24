@@ -88,7 +88,7 @@ def additional_settings() -> Tuple[bool, ...]:
 
 
 def export_menu(path: str, syllabus: List[TopicHour]):
-    choices = ['Spo', 'Sgk Journal', 'Spo + Sgk Journal']
+    choices = ['Sgo', 'Sgk Journal', 'Sgo + Sgk Journal']
     question = [{'type': 'list', 'name': 'export_type', 'choices': choices, 'message': 'Выберите формат CSV:'}]
     index = choices.index(prompt(question)['export_type'])
     if index == 0:
@@ -107,13 +107,17 @@ def export_sgo(path: str, syllabus: List[TopicHour]):
         current_selection = ''
         current_topic = ''
         for item in syllabus:
+            selection = ''
             place_dash = False
             if current_selection != item.selection:
                 current_selection = item.selection
+                selection = item.selection
                 place_dash = True
 
+            topic = ''
             if current_topic != item.topic:
                 current_topic = item.topic
+                topic = item.topic
                 place_dash = True
 
             description, demand = '', ''
@@ -121,7 +125,7 @@ def export_sgo(path: str, syllabus: List[TopicHour]):
                 description, demand = '-', '-'
 
             homework = item.homework if item.homework != '' else '-'
-            writer.writerow([item.selection, item.topic, description, demand, item.content, item.hourType.value,
+            writer.writerow([selection, topic, description, demand, item.content, item.hourType.value,
                              item.countHours, '-', homework])
 
 
