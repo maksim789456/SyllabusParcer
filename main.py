@@ -18,21 +18,22 @@ from models.TopicHour import TopicHour
 def main():
     header()
     warnings.simplefilter(action="ignore", category=SettingWithCopyWarning)  # TODO: Fix
-
+    print(">> С возращением, укажите excel-таблицу откуда вытянуть данные")
     file_path = easygui.fileopenbox(title="Выберете файл Еxcel", filetypes=[["*.xlsx", "*.xls", "Excel file"]])
     if file_path is not None:
+        print(">> Путь до файла: " + file_path + '\n')
         try:
             columns_setting = columns_settings()
             book = read_excel(file_path, usecols=columns_setting)
         except XLRDError:
-            print("Неподерживаемый формат. Возможно вы выбрали не тот файл")
+            print(">> [!] Перепроверь файл, кажется это не таблица")
             return
         practical_setting, independent_setting = row_settings()
         syllabus = parse(book, practical_setting, independent_setting)
-        print("Парсинг произошел успешно")
-        save_path = easygui.diropenbox(title="Выберете место куда сохранить csv")
+        print(">> [OK] Таблица обработана")
+        save_path = easygui.diropenbox(title="Выберите место, куда сохранить CSV-файлы для импорта")
         if save_path is None:
-            print("Не выбрана папка куда сохранять!")
+            print(">> [!] Не выбрана папка куда сохранять!")
             return
         split = '\\'
         if '/' in file_path:
@@ -41,21 +42,29 @@ def main():
         filename = file_path.split(split)[-1].split('.')[0]
         export_menu(save_path + split + filename, syllabus)
     else:
-        print("Такого файла нет")
+        print(">> [!] Такого файла нет")
+    print(">> Нажмите Enter чтобы запустить еще раз парсинг или закройте программу")
     input()
 
 
 def header():
-    print("Syllabus Parser / Парсер учебных планов v0.4")
-    print("Разработанно: maksim789456")
+    print("--------------------------------------------------")
+    print("Syllabus Parser v0.3.4 by maksim789456")
+    print("--------------------------------------------------")
 
 
 def columns_settings() -> List[int]:
+    print(">> Укажите какие данные хранятся в столбцах (отсчет с нуля):")
+    print(">> --------------------------------------")
+    print(">> |Раздел 1 |  2. Тема урока  | 4 часа |")
+    print(">> |Тема 1.1 |  Самост работа  | 1 час  |")
+    print(">> --------------------------------------")
+    print(">> Это был пример стандартной таблицы в виде (0,1,2)")
+    print(">> В случае, нестандартной таблицы укажите в ручном режиме номера столбцов в таком порядке:")
+    print(">> Порядок: 'столбец с темами', 'с занятимии и прочем', 'с часами'")
+    print(">> Если в стоблце с занятиями данные разбиты на два стобца то укажите '0,1,2,3'")
     choices = ['0,1,2', '0,1,2,3', 'Ручной']
     question = [{'type': 'list', 'name': 'collum_settings', 'choices': choices, 'message': 'Выберите пункт:'}]
-    print("Выберите пункт который указывает на нужные номера стобцов (нумерация с нуля):")
-    print("Порядок: 'столбец с темами', 'столбец с занятимии и прочем', 'столбец с часами'")
-    print("Если в стоблце с занятиями данные разбиты на два стобца то укажите '0,1,2,3'")
     answer = prompt(question)['collum_settings']
     if choices.index(answer) == 2:
         user_input = prompt([{'type': 'input', 'name': 'columns', 'validate': ColumnsValidator,
@@ -66,6 +75,15 @@ def columns_settings() -> List[int]:
 
 
 def row_settings() -> Tuple[int, ...]:
+    print(">> Тип полей (одиночный или двойной)")
+    print(">> При копирование таблицы из ворда, использование разрыва строки приведет к созданию")
+    print(">> дополнительных строк и ячеек в Excel")
+    print(">> Пример двойных строк")
+    print(">> --------------------------------------")
+    print(">> | Самостоятельная работа №1          |")
+    print(">> --------------------------------------")
+    print(">> | Название самостоятельной работы    |")
+    print(">> --------------------------------------")
     choices = ['Весь текст слитно', 'Заголовок отдельно - содержимое отдельно']
     questions = [{'type': 'list', 'name': 'practical_setting', 'choices': choices,
                   'message': 'Выберите тип поля для занятий:', 'validate': NumberValidator},
@@ -88,7 +106,7 @@ def additional_settings() -> Tuple[bool, ...]:
 
 
 def export_menu(path: str, syllabus: List[TopicHour]):
-    choices = ['Sgo', 'Sgk Journal', 'Sgo + Sgk Journal']
+    choices = ['SPO', 'Asu SGK', 'SPO + Asu SGK']
     question = [{'type': 'list', 'name': 'export_type', 'choices': choices, 'message': 'Выберите формат CSV:'}]
     index = choices.index(prompt(question)['export_type'])
     if index == 0:
