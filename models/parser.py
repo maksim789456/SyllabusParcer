@@ -13,6 +13,7 @@ def parse(df: DataFrame, practical_setting: int, independent_setting: int) -> Li
     df = try_fix_symbols(df)
     df = try_fix_topics(df)
     df = try_fix_independent(df)
+    df = try_fix_introduction(df)
 
     raw_syllabus = make_raw_syllabus(df, practical_setting, independent_setting)
     return make_final_syllabus(raw_syllabus)
@@ -167,6 +168,26 @@ def try_fix_symbols(df: DataFrame) -> DataFrame:
     return df
 
 
+def try_fix_introduction(df: DataFrame) -> DataFrame:
+    # ЧД: Если находим Введение то двигаем его чуть выше и добавляем фейк тему
+    # TODO: сделать проверку есть ли тема после Введения
+    introduction_regex = re.compile(r'[Вв]ведение')
+    rows_size = df['topic'].size
+    selection_indexes = range_indexes(get_selection_indexes(df), rows_size)
+    for selection_index in selection_indexes:
+        selection_value = df.loc[selection_index.start, 'topic']
+        if introduction_regex.search(selection_value):
+            if df.columns.size == 4:
+                df.loc[-1] = [selection_value, '', '', 0]
+            else:
+                df.loc[-1] = [selection_value, '', 0]
+
+            df.loc[selection_index.start, 'topic'] = 'Тема. Введение'
+            df.index = df.index + 1
+            return df.sort_index()
+    return df
+
+
 def range_indexes(old_indexes: List[int], df_size: int) -> List[pandas.RangeIndex]:
     # ЧД: Превращаем список из индексов в RangeIndex.
     indexes = []
@@ -186,9 +207,9 @@ def range_indexes(old_indexes: List[int], df_size: int) -> List[pandas.RangeInde
     return indexes
 
 
-# Методы для получения всех необходимых индексов (для раздела, темы, занятия и самостоятельной)
+# Методы для получения всех необходимых индексов (для раздела(или же введение), темы, занятия и самостоятельной)
 def get_selection_indexes(df: DataFrame):
-    selection_index = df[df['topic'].str.contains('(?:Р|р)аздел')].index.values
+    selection_index = df[df['topic'].str.contains('((?:Р|р)аздел)|(^(?:В|в)ведение)')].index.values
     return selection_index
 
 
