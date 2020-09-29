@@ -105,8 +105,7 @@ def row_settings() -> Tuple[int, ...]:
 
 
 def additional_settings() -> Tuple[bool, ...]:
-    questions = [{'type': 'confirm', 'name': 'dash_detect', 'message': "Парсить занятия вида '30-34'?"},
-                 {'type': 'confirm', 'name': 'enable_debug', 'message': "Включить отладочное окно?"}]
+    questions = [{'type': 'confirm', 'name': 'enable_debug', 'message': "Включить отладочное окно?"}]
     answers = []
     for key, value in prompt(questions).items():
         answers.append(value)

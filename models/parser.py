@@ -69,12 +69,14 @@ def make_raw_syllabus(df: DataFrame, practical_setting: int, independent_setting
 def make_final_syllabus(raw_syllabus: List) -> List[TopicHour]:
     # ЧД: Создание финальный массив с занятиями из групированного сырого массива
     syllabus = []
-    regex = r'^\d+\.?\ ?'
+    regex_hour = r'^\d+\.?\ ?'
+    regex_dash_hour = r'^-\d+\.?'
     for selection in raw_syllabus:
         for topic in selection.get('topics'):
             for practical in topic.get('practicals'):
                 practical_value = practical.get('practical')
-                practical_value = re.sub(regex, '', practical_value, 1)  # замена число-точка на ничего
+                practical_value = re.sub(regex_hour, '', practical_value, 1)  # замена число-точка на ничего
+                practical_value = re.sub(regex_dash_hour, '', practical_value, 1)  # замена куска '-123.'
                 syllabus.append(TopicHour(selection.get('selection'), topic.get('topic'), practical_value,
                                           practical.get('independent'), practical.get('hours'),
                                           practical.get('hourType')))
@@ -170,7 +172,6 @@ def try_fix_symbols(df: DataFrame) -> DataFrame:
 
 def try_fix_introduction(df: DataFrame) -> DataFrame:
     # ЧД: Если находим Введение то двигаем его чуть выше и добавляем фейк тему
-    # TODO: сделать проверку есть ли тема после Введения
     introduction_regex = re.compile(r'[Вв]ведение')
     rows_size = df['topic'].size
     selection_indexes = range_indexes(get_selection_indexes(df), rows_size)
