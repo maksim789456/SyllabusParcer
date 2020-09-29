@@ -21,36 +21,37 @@ dev_mode = False if len(sys.argv) == 1 else bool(sys.argv[1])
 def main():
     header()
     warnings.simplefilter(action="ignore", category=SettingWithCopyWarning)  # TODO: Fix
-    if not dev_mode:
-        print(">> С возращением, укажите excel-таблицу откуда вытянуть данные")
-    else:
-        print(">> Dev Mode enabled")
-    file_path = easygui.fileopenbox(title="Выберете файл Еxcel", filetypes=[["*.xlsx", "*.xls", "Excel file"]])
-    if file_path is not None:
-        print(">> Путь до файла: " + file_path + '\n')
-        try:
-            columns_setting = columns_settings()
-            book = read_excel(file_path, usecols=columns_setting)
-        except XLRDError:
-            print(">> [!] Перепроверь файл, кажется это не таблица")
-            return
-        practical_setting, independent_setting = row_settings()
-        syllabus = parse(book, practical_setting, independent_setting)
-        print(">> [OK] Таблица обработана")
-        save_path = easygui.diropenbox(title="Выберите место, куда сохранить CSV-файлы для импорта")
-        if save_path is None:
-            print(">> [!] Не выбрана папка куда сохранять!")
-            return
-        split = '\\'
-        if '/' in file_path:
-            split = '/'
+    while True:
+        if not dev_mode:
+            print(">> С возращением, укажите excel-таблицу откуда вытянуть данные")
+        else:
+            print(">> Dev Mode enabled")
+        file_path = easygui.fileopenbox(title="Выберете файл Еxcel", filetypes=[["*.xlsx", "*.xls", "Excel file"]])
+        if file_path is not None:
+            print(">> Путь до файла: " + file_path + '\n')
+            try:
+                columns_setting = columns_settings()
+                book = read_excel(file_path, usecols=columns_setting)
+            except XLRDError:
+                print(">> [!] Перепроверь файл, кажется это не таблица")
+                return
+            practical_setting, independent_setting = row_settings()
+            syllabus = parse(book, practical_setting, independent_setting)
+            print(">> [OK] Таблица обработана")
+            save_path = easygui.diropenbox(title="Выберите место, куда сохранить CSV-файлы для импорта")
+            if save_path is None:
+                print(">> [!] Не выбрана папка куда сохранять!")
+                return
+            split = '\\'
+            if '/' in file_path:
+                split = '/'
 
-        filename = file_path.split(split)[-1].split('.')[0]
-        export_menu(save_path + split + filename, syllabus)
-    else:
-        print(">> [!] Такого файла нет")
-    print(">> Нажмите Enter чтобы запустить еще раз парсинг или закройте программу")
-    input()
+            filename = file_path.split(split)[-1].split('.')[0]
+            export_menu(save_path + split + filename, syllabus)
+        else:
+            print(">> [!] Такого файла нет")
+        print(">> Нажмите Enter чтобы запустить еще раз парсинг или закройте программу")
+        input()
 
 
 def header():
