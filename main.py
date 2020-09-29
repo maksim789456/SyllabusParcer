@@ -1,4 +1,5 @@
 import sys
+import traceback
 import warnings
 import csv
 import easygui
@@ -36,7 +37,12 @@ def main():
                 print(">> [!] Перепроверь файл, кажется это не таблица")
                 return
             practical_setting, independent_setting = row_settings()
-            syllabus = parse(book, practical_setting, independent_setting)
+            try:
+                syllabus = parse(book, practical_setting, independent_setting)
+            except:
+                print(traceback.format_exc())
+                input()
+                return
             print(">> [OK] Таблица обработана")
             save_path = easygui.diropenbox(title="Выберите место, куда сохранить CSV-файлы для импорта")
             if save_path is None:
