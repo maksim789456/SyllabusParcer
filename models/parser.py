@@ -220,7 +220,7 @@ def get_topic_indexes(df: DataFrame):
 
 
 def get_practical_indexes(df: DataFrame):
-    practical_index = df[df['content'].str.contains('^\d+\.?')].index.values
+    practical_index = df[df['content'].str.contains('^\ *\d+\.?')].index.values
     return practical_index
 
 
