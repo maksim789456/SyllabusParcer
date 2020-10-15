@@ -21,7 +21,6 @@ dev_mode = False if len(sys.argv) == 1 else bool(sys.argv[1])
 
 def main():
     header()
-    warnings.simplefilter(action="ignore", category=SettingWithCopyWarning)  # TODO: Fix
     while True:
         if not dev_mode:
             print(">> С возращением, укажите excel-таблицу откуда вытянуть данные")

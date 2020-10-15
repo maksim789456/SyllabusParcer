@@ -210,7 +210,7 @@ def range_indexes(old_indexes: List[int], df_size: int) -> List[pandas.RangeInde
 
 # Методы для получения всех необходимых индексов (для раздела(или же введение), темы, занятия и самостоятельной)
 def get_selection_indexes(df: DataFrame):
-    selection_index = df[df['topic'].str.contains('((?:Р|р)аздел)|(^(?:В|в)ведение)')].index.values
+    selection_index = df[df['topic'].str.contains('(?:(?:Р|р)аздел)|(?:^(?:В|в)ведение)')].index.values
     return selection_index
 
 
