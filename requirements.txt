@@ -1,8 +1,12 @@
 easygui==0.98.1
-numpy==1.19.2
-pandas==1.1.2
+numpy==1.19.4
+pandas==1.1.4
+prompt-toolkit==1.0.14
+Pygments==2.7.2
+PyInquirer==1.0.3
 python-dateutil==2.8.1
-pytz==2020.1
+pytz==2020.4
+regex==2020.11.13
 six==1.15.0
+wcwidth==0.2.5
 xlrd==1.2.0
-PyInquirer~=1.0.3

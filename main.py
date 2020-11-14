@@ -1,13 +1,11 @@
 import sys
 import traceback
-import warnings
 import csv
 import easygui
 import itertools
 from typing import List, Tuple
 
 from PyInquirer import prompt
-from pandas.core.common import SettingWithCopyWarning
 from pandas import read_excel
 from xlrd import XLRDError
 
@@ -47,9 +45,10 @@ def main():
             if save_path is None:
                 print(">> [!] Не выбрана папка куда сохранять!")
                 return
-            split = '\\'
             if '/' in file_path:
                 split = '/'
+            else:
+                split = '\\'
 
             filename = file_path.split(split)[-1].split('.')[0]
             export_menu(save_path + split + filename, syllabus)
