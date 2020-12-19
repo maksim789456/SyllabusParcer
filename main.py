@@ -61,7 +61,7 @@ def main():
 def header():
     if not dev_mode:
         print("--------------------------------------------------")
-        print("Syllabus Parser v0.3.4 by maksim789456")
+        print("Syllabus Parser v0.3.5 by maksim789456")
         print("--------------------------------------------------")
 
 
